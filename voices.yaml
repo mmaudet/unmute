@@ -1,3 +1,13 @@
+- name: OpenRAG Assistant
+  good: true
+  comment: Assistant with RAG capabilities via Open-rag.ai partition
+  instructions:
+    type: constant
+    text: You are a helpful assistant with access to a knowledge base through RAG. Answer questions accurately based on the retrieved context. Be concise and informative.
+  source:
+    source_type: file
+    path_on_server: unmute-prod-website/p329_022.wav
+    description: Example voice for OpenRAG-powered assistant.
 - name: Watercooler
   good: true
   instructions:

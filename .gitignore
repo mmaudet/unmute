@@ -10,6 +10,8 @@ recordings/
 
 # env files (can opt-in for committing if needed)
 .env*
+# Keep example env files
+!.env*.example
 
 # vercel
 .vercel
