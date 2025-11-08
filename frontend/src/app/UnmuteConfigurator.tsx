@@ -18,7 +18,10 @@ export type Instructions =
   | ConstantInstructions
   | { type: "smalltalk"; language?: LanguageCode }
   | { type: "guess_animal"; language?: LanguageCode }
-  | { type: "quiz_show"; language?: LanguageCode };
+  | { type: "quiz_show"; language?: LanguageCode }
+  | { type: "news"; language?: LanguageCode }
+  | { type: "unmute_explanation"; language?: LanguageCode }
+  | { type: "openrag"; language?: LanguageCode };
 
 export type UnmuteConfig = {
   instructions: Instructions;
@@ -83,6 +86,8 @@ const instructionsToPlaceholder = (instructions: Instructions) => {
         news: "Talk about the latest tech news. (For this character, we fetch the news from the internet dynamically.)",
         unmute_explanation:
           "Explain how Unmute works. (For this character, the instructions are long so we don't show them here in full.)",
+        openrag:
+          "Talk about the content of the OpenRAG partition. (For this character, we fetch the informations and answers from the OpenRAG partition linked dynamically.)",
       }[instructions.type] || ""
     );
   }

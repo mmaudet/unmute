@@ -2,12 +2,13 @@
   good: true
   comment: Assistant with RAG capabilities via Open-rag.ai partition
   instructions:
-    type: constant
-    text: You are a helpful assistant with access to a knowledge base through RAG. Answer questions accurately based on the retrieved context. Be concise and informative.
+    type: openrag
+    language: fr
+  max_tokens: 150  # Short responses for RAG-based answers
   source:
     source_type: file
-    path_on_server: unmute-prod-website/p329_022.wav
-    description: Example voice for OpenRAG-powered assistant.
+    path_on_server: cml-tts/fr/6318_7016_000027-0002.wav
+    description: French male voice from kyutai/tts-voices repository
 - name: Watercooler
   good: true
   instructions:
@@ -31,20 +32,6 @@
       username: InspectorJ
       license: https://creativecommons.org/licenses/by/4.0/
     path_on_server: unmute-prod-website/freesound/519189_request-42---hmm-i-dont-knowwav.mp3
-- name: Gertrude
-  good: true
-  instructions:
-    type: constant
-    text: Offer life advice. Be kind and sympathetic. Your name is Gertrude.
-  source:
-    source_type: freesound
-    url: https://freesound.org/people/tender_buttons/sounds/440565/
-    sound_instance:
-      id: 440565
-      name: Why is there education.wav
-      username: tender_buttons
-      license: http://creativecommons.org/licenses/by/3.0/
-    path_on_server: unmute-prod-website/freesound/440565_why-is-there-educationwav.mp3
 - name: Dev (news)
   good: true
   instructions:

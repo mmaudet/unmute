@@ -11,6 +11,11 @@ services:
     env_file:
       - .env
     environment:
+      # Override LLM configuration with Open-rag.ai
+      - KYUTAI_LLM_URL=${KYUTAI_LLM_URL}
+      - KYUTAI_LLM_MODEL=${KYUTAI_LLM_MODEL}
+      - KYUTAI_LLM_API_KEY=${KYUTAI_LLM_API_KEY}
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
       # Other optional environment variables remain the same
       - KYUTAI_STT_URL=ws://stt:8080
       - KYUTAI_TTS_URL=ws://tts:8080

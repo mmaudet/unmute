@@ -170,6 +170,7 @@ class VoiceSample(BaseModel):
     comment: str | None = None
     good: bool | None = None
     instructions: Instructions | None = None
+    max_tokens: int | None = None  # Override default max_tokens for LLM responses
     source: FreesoundVoiceSource | FileVoiceSource = Field(discriminator="source_type")
 
 

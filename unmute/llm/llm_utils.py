@@ -150,24 +150,38 @@ class VLLMStream:
         self,
         client: AsyncOpenAI,
         temperature: float = 1.0,
+        max_tokens: int | None = None,
     ):
         """
         If `model` is None, it will look at the available models, and if there is only
         one model, it will use that one. Otherwise, it will raise.
+
+        Args:
+            client: AsyncOpenAI client
+            temperature: Sampling temperature
+            max_tokens: Maximum tokens to generate (None = no limit)
         """
         self.client = client
         self.model = autoselect_model()
         self.temperature = temperature
+        self.max_tokens = max_tokens
 
     async def chat_completion(
         self, messages: list[dict[str, str]]
     ) -> AsyncIterator[str]:
-        stream = await self.client.chat.completions.create(
-            model=self.model,
-            messages=cast(Any, messages),  # Cast and hope for the best
-            stream=True,
-            temperature=self.temperature,
-        )
+        # Build completion params
+        completion_params: dict[str, Any] = {
+            "model": self.model,
+            "messages": cast(Any, messages),
+            "stream": True,
+            "temperature": self.temperature,
+        }
+
+        # Add max_tokens if specified
+        if self.max_tokens is not None:
+            completion_params["max_tokens"] = self.max_tokens
+
+        stream = await self.client.chat.completions.create(**completion_params)
 
         async with stream:
             async for chunk in stream:

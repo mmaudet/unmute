@@ -3,7 +3,10 @@ import math
 from functools import partial
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
+
+if TYPE_CHECKING:
+    from unmute.tts.voices import VoiceList
 
 import numpy as np
 import websockets
@@ -52,6 +55,21 @@ TTS_DEBUGGING_TEXT = None
 
 # AUDIO_INPUT_OVERRIDE: Path | None = Path.home() / "audio/dog-or-cat-3.mp3"
 AUDIO_INPUT_OVERRIDE: Path | None = None
+
+
+# Cache for VoiceList to avoid reloading voices.yaml on every voice selection
+_voice_list_cache: "VoiceList | None" = None
+
+
+def _get_voice_list() -> "VoiceList":
+    """Get cached VoiceList instance."""
+    global _voice_list_cache
+    if _voice_list_cache is None:
+        from unmute.tts.voices import VoiceList
+        _voice_list_cache = VoiceList()
+    return _voice_list_cache
+
+
 DEBUG_PLOT_HISTORY_SEC = 10.0
 
 USER_SILENCE_TIMEOUT = 7.0
@@ -97,6 +115,7 @@ class UnmuteHandler(AsyncStreamHandler):
 
         self.tts_voice: str | None = None  # Stored separately because TTS is restarted
         self.tts_output_stopwatch = Stopwatch()
+        self.max_tokens: int | None = None  # Maximum tokens for LLM responses
 
         self.chatbot = Chatbot()
         self.openai_client = get_openai_client()
@@ -197,6 +216,11 @@ class UnmuteHandler(AsyncStreamHandler):
         llm_stopwatch = Stopwatch()
 
         quest = await self.start_up_tts(generating_message_i)
+
+        # Determine max_tokens: use session max_tokens if set, otherwise use env var default
+        from unmute.kyutai_constants import KYUTAI_LLM_MAX_TOKENS
+        max_tokens = self.max_tokens if self.max_tokens is not None else KYUTAI_LLM_MAX_TOKENS
+
         llm = VLLMStream(
             # if generating_message_i is 2, then we have a system prompt + an empty
             # assistant message signalling that we are generating a response.
@@ -204,6 +228,7 @@ class UnmuteHandler(AsyncStreamHandler):
             temperature=FIRST_MESSAGE_TEMPERATURE
             if generating_message_i == 2
             else FURTHER_MESSAGES_TEMPERATURE,
+            max_tokens=max_tokens,
         )
 
         messages = self.chatbot.preprocessed_messages()
@@ -643,6 +668,20 @@ class UnmuteHandler(AsyncStreamHandler):
 
         if session.voice:
             self.tts_voice = session.voice
+
+            # Load max_tokens from VoiceSample if not explicitly set in session
+            if session.max_tokens is None:
+                voice_list = _get_voice_list()
+                # Find the matching voice sample
+                for voice_sample in voice_list.voices:
+                    if voice_sample.name == session.voice:
+                        if voice_sample.max_tokens is not None:
+                            self.max_tokens = voice_sample.max_tokens
+                            logger.info(f"Using max_tokens={self.max_tokens} from voice '{session.voice}'")
+                        break
+
+        if session.max_tokens is not None:
+            self.max_tokens = session.max_tokens
 
         if not session.allow_recording and self.recorder:
             await self.recorder.add_event("client", ora.SessionUpdate(session=session))

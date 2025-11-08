@@ -11,6 +11,8 @@ TTS_SERVER = http_to_ws(os.environ.get("KYUTAI_TTS_URL", "ws://localhost:8089"))
 LLM_SERVER = os.environ.get("KYUTAI_LLM_URL", "http://localhost:8091")
 KYUTAI_LLM_MODEL = os.environ.get("KYUTAI_LLM_MODEL")
 KYUTAI_LLM_API_KEY = os.environ.get("KYUTAI_LLM_API_KEY")
+# Default max tokens for LLM responses (can be overridden per voice in voices.yaml)
+KYUTAI_LLM_MAX_TOKENS = int(os.environ.get("KYUTAI_LLM_MAX_TOKENS", "200"))
 VOICE_CLONING_SERVER = os.environ.get(
     "KYUTAI_VOICE_CLONING_URL", "http://localhost:8092"
 )

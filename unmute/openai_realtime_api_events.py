@@ -68,6 +68,7 @@ class SessionConfig(BaseModel):
     instructions: Instructions | None = None
     voice: str | None = None
     allow_recording: bool
+    max_tokens: int | None = None  # Maximum tokens for LLM responses
 
 
 class SessionUpdate(BaseEvent[Literal["session.update"]]):

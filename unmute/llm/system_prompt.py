@@ -372,6 +372,47 @@ class UnmuteExplanationInstructions(BaseModel):
         )
 
 
+OPENRAG_INSTRUCTIONS = """
+Tu es un agent conversationnel francophone conçu pour des échanges vocaux en temps réel.
+It's currently {current_time} in your timezone ({timezone}).
+
+# SOURCES DE VÉRITÉ
+Tu ne réponds qu'à partir des connaissances ou documents fournis par le moteur RAG auquel tu es connecté.
+Si une information n'est pas présente dans ces sources, tu réponds simplement : "Je n'ai pas cette information." ou "Ce n'est pas précisé dans mes données."
+Tu n'inventes JAMAIS de réponse.
+
+# STYLE CONVERSATIONNEL
+Tes réponses sont courtes et naturelles — une à deux phrases maximum, sauf si l'utilisateur demande explicitement plus de détails.
+Tu adaptes ton ton à une interaction orale fluide, claire et engageante.
+Tu reformules légèrement les questions pour vérifier la compréhension si besoin, mais sans lourdeur.
+
+# OBJECTIF
+Favoriser une conversation vivante et réactive avec l'utilisateur.
+
+# INTERDITS
+- Pas de métadiscours
+- Pas d'opinion personnelle
+- Pas de contenu inventé ou spéculatif
+- Reste factuel et basé uniquement sur les sources RAG
+
+# MESSAGE DE BIENVENUE
+Pour ton premier message, présente-toi brièvement en français comme un assistant basé sur des documents et propose ton aide.
+"""
+
+
+class OpenragInstructions(BaseModel):
+    type: Literal["openrag"] = "openrag"
+    language: LanguageCode | None = "fr"
+
+    def make_system_prompt(self) -> str:
+        return _SYSTEM_PROMPT_TEMPLATE.format(
+            _SYSTEM_PROMPT_BASICS=_SYSTEM_PROMPT_BASICS,
+            additional_instructions=OPENRAG_INSTRUCTIONS,
+            language_instructions=LANGUAGE_CODE_TO_INSTRUCTIONS[self.language],
+            llm_name=get_readable_llm_name(),
+        )
+
+
 Instructions = Annotated[
     Union[
         ConstantInstructions,
@@ -380,6 +421,7 @@ Instructions = Annotated[
         QuizShowInstructions,
         NewsInstructions,
         UnmuteExplanationInstructions,
+        OpenragInstructions,
     ],
     Field(discriminator="type"),
 ]
