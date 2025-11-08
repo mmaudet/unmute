@@ -302,16 +302,27 @@ You can modify this file to change to another external LLM, such as an OpenAI se
 
 #### Using OpenRAG for RAG-powered conversations
 
-Unmute includes support for [Open-rag.ai](https://open-rag.ai), allowing you to create voice assistants that answer questions based on your documents.
+Unmute includes support for [OpenRAG](https://open-rag.ai), allowing you to create voice assistants that answer questions based on your documents.
 
-1. **Create an OpenRAG partition** at [demo.open-rag.ai](https://demo.open-rag.ai) and upload your documents
+**Prerequisites:**
+- Install and deploy OpenRAG by following the [installation documentation](https://github.com/simonweniger/open-rag) on the OpenRAG GitHub repository
+- Alternatively, use the demo instance at `https://demo.open-rag.ai/v1` (used in the example below)
+
+**Setup steps:**
+
+1. **Create an OpenRAG partition** and upload your documents:
+   - If using the demo: visit [demo.open-rag.ai](https://demo.open-rag.ai)
+   - If using your own installation: access your OpenRAG instance UI
+
 2. **Configure environment variables** in `.env`:
    ```bash
    # OpenRAG configuration
+   # Replace with your OpenRAG instance URL (example uses demo)
    KYUTAI_LLM_URL=https://demo.open-rag.ai/v1
    KYUTAI_LLM_MODEL=openrag-yourpartition  # Replace with your partition name
-   KYUTAI_LLM_API_KEY=your-openrag-api-key  # Get your API key from Open-rag.ai
+   KYUTAI_LLM_API_KEY=your-openrag-api-key  # Get your API key from OpenRAG
    ```
+
 3. **Start with docker-compose**:
    ```bash
    docker compose -f docker-compose.openrag.yml up --build
