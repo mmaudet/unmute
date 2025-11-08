@@ -305,7 +305,7 @@ You can modify this file to change to another external LLM, such as an OpenAI se
 Unmute includes support for [OpenRAG](https://open-rag.ai), allowing you to create voice assistants that answer questions based on your documents.
 
 **Prerequisites:**
-- Install and deploy OpenRAG by following the [installation documentation](https://github.com/simonweniger/open-rag) on the OpenRAG GitHub repository
+- Install and deploy OpenRAG by following the [official installation documentation](https://linagora.github.io/openrag/getting_started/quickstart/)
 - Alternatively, use the demo instance at `https://demo.open-rag.ai/v1` (used in the example below)
 
 **Setup steps:**
