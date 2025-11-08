@@ -27,6 +27,29 @@ graph LR
   - Once the speech-to-text detects that the user has stopped speaking and it's time to generate a response, the backend connects to an **LLM** server to retrieve the response. We host our own LLM using [VLLM](https://github.com/vllm-project/vllm), but you could also use an external API like OpenAI or Mistral.
   - As the response is being generated, the backend feeds it to the **text-to-speech** server to read it out loud, and forwards the generated speech to the user.
 
+## ✨ New Features
+
+### OpenRAG Integration
+
+Unmute now supports **RAG (Retrieval-Augmented Generation)** through [Open-rag.ai](https://open-rag.ai), enabling voice assistants that can answer questions based on your own documents:
+
+- **OpenRAG Assistant**: A French-speaking voice assistant optimized for document-based Q&A
+- **Easy setup**: Just create a partition, upload documents, and configure your `.env` file
+- **Optimized for RAG**: Automatically uses shorter responses (150 tokens) for concise, fact-based answers
+- **Document-grounded**: Only answers from provided sources, never invents information
+
+See the [Using OpenRAG](#using-openrag-for-rag-powered-conversations) section for setup instructions.
+
+### Configurable Response Length
+
+You can now control how verbose the LLM responses are:
+
+- **Global default**: Set `KYUTAI_LLM_MAX_TOKENS` environment variable (default: 200)
+- **Per-voice override**: Configure different token limits in `voices.yaml`
+- **Flexible**: Perfect for RAG (short answers), news (detailed), or general chat (balanced)
+
+See the [Configuring LLM response length](#configuring-llm-response-length) section for details.
+
 ## Setup
 
 > [!NOTE]
@@ -84,6 +107,64 @@ On a machine with a GPU, run:
 echo $HUGGING_FACE_HUB_TOKEN  # This should print hf_...something...
 
 docker compose up --build
+```
+
+### Environment Variables Reference
+
+Unmute can be configured using environment variables. Create a `.env` file in the project root or export them in your shell.
+
+#### Required Variables
+
+```bash
+# Hugging Face token for model downloads (required for STT/TTS)
+HUGGING_FACE_HUB_TOKEN=hf_...
+```
+
+#### LLM Configuration
+
+```bash
+# LLM server URL (do not include /v1 suffix, it's added automatically)
+KYUTAI_LLM_URL=http://llm:8000                    # Default: local vLLM server
+
+# LLM model name
+KYUTAI_LLM_MODEL=meta-llama/Llama-3.2-1B         # Default: auto-detect from server
+
+# LLM API key
+KYUTAI_LLM_API_KEY=                               # Default: empty (vLLM doesn't need one)
+
+# Maximum tokens for LLM responses
+KYUTAI_LLM_MAX_TOKENS=200                         # Default: 200
+```
+
+#### Optional Service URLs
+
+```bash
+# Speech-to-Text service
+KYUTAI_STT_URL=ws://stt:8080                      # Default: local STT server
+
+# Text-to-Speech service
+KYUTAI_TTS_URL=ws://tts:8080                      # Default: local TTS server
+
+# Voice cloning service
+KYUTAI_VOICE_CLONING_URL=http://localhost:8092    # Default: disabled
+```
+
+#### Optional Features
+
+```bash
+# News API for news-based characters (optional)
+NEWSAPI_API_KEY=                                  # Get from newsapi.org
+```
+
+#### Example: OpenRAG Configuration
+
+```bash
+# .env file for OpenRAG setup
+HUGGING_FACE_HUB_TOKEN=hf_...
+KYUTAI_LLM_URL=https://demo.open-rag.ai/v1
+KYUTAI_LLM_MODEL=openrag-yourpartition
+KYUTAI_LLM_API_KEY=sk-ragondin-2025
+KYUTAI_LLM_MAX_TOKENS=150
 ```
 
 #### Using multiple GPUs
@@ -214,7 +295,51 @@ you'll need to restart the backend.
 ### Using external LLM servers
 
 The Unmute backend can be used with any OpenAI compatible LLM server. By default, the `docker-compose.yml` configures VLLM to enable a fully self-contained, local setup.
-You can modify this file to change to another external LLM, such as an OpenAI server, a local ollama setup, etc.
+You can modify this file to change to another external LLM, such as an OpenAI server, a local ollama setup, or an OpenRAG partition, etc.
+
+#### Using OpenRAG for RAG-powered conversations
+
+Unmute includes support for [Open-rag.ai](https://open-rag.ai), allowing you to create voice assistants that answer questions based on your documents.
+
+1. **Create an OpenRAG partition** at [demo.open-rag.ai](https://demo.open-rag.ai) and upload your documents
+2. **Configure environment variables** in `.env`:
+   ```bash
+   # OpenRAG configuration
+   KYUTAI_LLM_URL=https://demo.open-rag.ai/v1
+   KYUTAI_LLM_MODEL=openrag-yourpartition  # Replace with your partition name
+   KYUTAI_LLM_API_KEY=sk-ragondin-2025      # OpenRAG demo API key
+   ```
+3. **Start with docker-compose**:
+   ```bash
+   docker compose -f docker-compose.openrag.yml up --build
+   ```
+
+The OpenRAG Assistant will appear in the voice selection menu with optimized settings for RAG-based conversations (150 token limit for concise answers).
+
+#### Configuring LLM response length
+
+You can control the maximum length of LLM responses using the `KYUTAI_LLM_MAX_TOKENS` environment variable:
+
+```bash
+# Global default (applies to all voices unless overridden)
+KYUTAI_LLM_MAX_TOKENS=200  # Default: 200 tokens
+```
+
+**Per-voice override**: You can set different token limits for specific voices in `voices.yaml`:
+```yaml
+- name: OpenRAG Assistant
+  max_tokens: 150  # Shorter responses for RAG
+  instructions:
+    type: openrag
+    language: fr
+```
+
+**Priority**: Session override > Voice setting > Environment variable
+
+This is particularly useful for:
+- RAG assistants that need concise answers (e.g., 150 tokens)
+- News assistants that need detailed summaries (e.g., 300 tokens)
+- General conversation that benefits from balanced responses (e.g., 200 tokens)
 
 For ollama, as environment variables for the `unmute-backend` image, replace
 ```yaml
