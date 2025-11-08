@@ -166,7 +166,7 @@ NEWSAPI_API_KEY=                                  # Get from newsapi.org
 HUGGING_FACE_HUB_TOKEN=hf_...
 KYUTAI_LLM_URL=https://demo.open-rag.ai/v1
 KYUTAI_LLM_MODEL=openrag-yourpartition
-KYUTAI_LLM_API_KEY=sk-ragondin-2025
+KYUTAI_LLM_API_KEY=your-openrag-api-key
 KYUTAI_LLM_MAX_TOKENS=150
 ```
 
@@ -310,7 +310,7 @@ Unmute includes support for [Open-rag.ai](https://open-rag.ai), allowing you to 
    # OpenRAG configuration
    KYUTAI_LLM_URL=https://demo.open-rag.ai/v1
    KYUTAI_LLM_MODEL=openrag-yourpartition  # Replace with your partition name
-   KYUTAI_LLM_API_KEY=sk-ragondin-2025      # OpenRAG demo API key
+   KYUTAI_LLM_API_KEY=your-openrag-api-key  # Get your API key from Open-rag.ai
    ```
 3. **Start with docker-compose**:
    ```bash
