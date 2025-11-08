@@ -19,12 +19,15 @@ graph LR
     B --> STT(Speech-to-text)
     B --> LLM(LLM)
     B --> TTS(Text-to-speech)
+    LLM -.->|Optional: RAG| OR[(OpenRAG<br/>Documents)]
+
+    style OR fill:#e1f5ff,stroke:#0066cc,stroke-width:2px,stroke-dasharray: 5 5
 ```
 
 - The user opens the Unmute website, served by the **frontend**.
 - By clicking "connect", the user establishes a websocket connection to the **backend**, sending audio and other metadata back and forth in real time.
   - The backend connects via websocket to the **speech-to-text** server, sending it the audio from the user and receiving back the transcription in real time.
-  - Once the speech-to-text detects that the user has stopped speaking and it's time to generate a response, the backend connects to an **LLM** server to retrieve the response. We host our own LLM using [VLLM](https://github.com/vllm-project/vllm), but you could also use an external API like OpenAI or Mistral.
+  - Once the speech-to-text detects that the user has stopped speaking and it's time to generate a response, the backend connects to an **LLM** server to retrieve the response. We host our own LLM using [VLLM](https://github.com/vllm-project/vllm), but you could also use an external API like OpenAI, Mistral, or **OpenRAG** (for document-based Q&A).
   - As the response is being generated, the backend feeds it to the **text-to-speech** server to read it out loud, and forwards the generated speech to the user.
 
 ## ✨ New Features
